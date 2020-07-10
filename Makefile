@@ -1,4 +1,5 @@
-CFLAGS=		-g -Wall -O2 -Wc++-compat #-Wextra
+CC=			nvcc
+CFLAGS=		-O2 -gencode=arch=compute_52,code=sm_52 -m64 
 CPPFLAGS=	-DHAVE_KALLOC
 INCLUDES=
 OBJS=		kthread.o kalloc.o misc.o bseq.o sketch.o sdust.o options.o index.o chain.o align.o hit.o map.o format.o pe.o esterr.o splitidx.o ksw2_ll_sse.o ksw2_gg2.o
@@ -17,9 +18,9 @@ ifneq ($(tsan),)
 endif
 
 .PHONY:all extra clean depend
-.SUFFIXES:.c .o
+.SUFFIXES:.cu .c .o
 
-.c.o:
+.cu.o:
 		$(CC) -c $(CFLAGS) $(CPPFLAGS) $(INCLUDES) $< -o $@
 
 all:$(PROG)
@@ -35,7 +36,7 @@ minimap2-lite:example.o libminimap2.a
 libminimap2.a:$(OBJS)
 		$(AR) -csru $@ $(OBJS)
 
-sdust:sdust.c kalloc.o kalloc.h kdq.h kvec.h kseq.h ketopt.h sdust.h
+sdust:sdust.cu kalloc.o kalloc.h kdq.h kvec.h kseq.h ketopt.h sdust.h
 		$(CC) -D_SDUST_MAIN $(CFLAGS) $< kalloc.o -o $@ -lz
 
 # other non-file targets
